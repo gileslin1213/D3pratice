@@ -1,33 +1,51 @@
-#show{
+#show {
   font-size: 50px;
   font-weight: 900;
 }
-.axisX{
-  .tick{
+
+.axisX {
+  .tick {
     font-size: 16px;
-    line{
-      display:none;
+    line {
+      display: none;
     }
   }
 }
-.axisY{
-  .tick{
+
+.axisY {
+  .tick {
     color: gray;
     font-size: 12px;
-    line{
+    line {
       stroke: lightgray;
     }
   }
 }
+
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
+  thead{
+    th{
+      &:first-child{
+        width:50px;
+      }
+    }
+  }
 }
 
-td, th {
+.table {
+  th,
+  td {
+    vertical-align: middle;
+  }
+}
+
+td,
+th {
   border: 1px solid #dddddd;
-  text-align: left;
+  text-align: center;
   padding: 8px;
 }
 
@@ -35,12 +53,10 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 
-.colorBlock{
-  display:inline-block;
+.colorBlock {
+  display: inline-block;
   width: 30px;
   height: 30px;
-  background-color:red;
+  background-color: red;
+  vertical-align:middle;
 }
-
-
-

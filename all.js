@@ -8,7 +8,7 @@ var data = [
 
 var margin = { top: 40, right: 20, bottom: 30, left: 20 };
 var width = $('#chart').width() - margin.right - margin.left;
-var height = 400 - margin.top - margin.bottom;
+var height = $('#chart').width() / 2 - margin.top - margin.bottom;
 
 
 var svg = d3.select("#chart")
@@ -69,21 +69,53 @@ var area1 = d3.area()
 
 var defs = svg.append('defs');
 
-defs.append('clipPath')
-  .attr('id', 'clip-retired-area')
+defs.selectAll('clipPath')
+  .data(data).enter()
+  .append('clipPath')
+  .attr('id', function (d, i) {
+    console.log(d.x, i);
+    return 'clip-area-' + i;
+  })
   .append('rect')
   .attr('height', height)
-  .attr('width', xScale(80) - xScale(65))
-  .attr('x', xScale(65))
+  .attr('width', function (d, i) { return cilpAreaWidth(d, i); })
+  .attr('x', function (d, i) { return cilpAreaPosition(d, i); })
   .attr('y', 0);
 
-defs.append('clipPath')
-  .attr('id', 'clip-retire-area')
-  .append('rect')
-  .attr('height', height)
-  .attr('width', xScale(65))
-  .attr('x', 0)
-  .attr('y', 0);
+function cilpAreaWidth(d, i) {
+  switch (i) {
+    case 0:
+      break;
+    default:
+      return xScale(d.x) - xScale(data[i - 1].x);
+      break;
+  }
+}
+
+function cilpAreaPosition(d, i) {
+  switch (i) {
+    case 0:
+      break;
+    default:
+      return xScale(data[i - 1].x);
+      break;
+  }
+}
+// defs.append('clipPath')
+//   .attr('id', 'clip-retired-area')
+//   .append('rect')
+//   .attr('height', height)
+//   .attr('width', xScale(80) - xScale(65))
+//   .attr('x', xScale(65))
+//   .attr('y', 0);
+
+// defs.append('clipPath')
+//   .attr('id', 'clip-retire-area')
+//   .append('rect')
+//   .attr('height', height)
+//   .attr('width', xScale(65))
+//   .attr('x', 0)
+//   .attr('y', 0);
 
 // g.append("path")
 //   .attr('class','line')
@@ -91,15 +123,22 @@ defs.append('clipPath')
 //   .attr("stroke","black")
 //   .attr("fill","none");
 
-g.append('path')
-  .attr('class', 'area')
+g.append('g')
+  .attr('class', 'areas')
+  .selectAll('path')
+  .data(data).enter()
+  .append('path')
+  .attr('class', function (d, i) { return 'area' + i; })
   .attr('d', area1(data))
-  .attr('clip-path', 'url(#clip-retire-area)')
-  .attr('fill', 'rgba(150,150,255,0.3)')
-  .clone()
-  .attr('fill', 'rgba(0,150,255,0.3)')
-  .attr('clip-path', 'url(#clip-retired-area)');
+  .attr('clip-path', function (d, i) {
+    return 'url(#clip-area-' + i + ')';
+  })
+  .attr('fill', 'rgba(150,150,255,0.3)');
 
+d3.select('.area0')
+  .remove();
+d3.select('#clip-area-0')
+  .remove();
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 g.append('g')
@@ -113,12 +152,12 @@ g.append('g')
   .attr('cy', function (d) { return yScale(d.y); })
   .attr('fill', function (d, i) { return color(i); });
 
-d3.selectAll('circle')
-  .filter(':first-child')
-  .remove();
-d3.selectAll('circle')
-  .filter(':last-child')
-  .remove();
+// d3.selectAll('circle')
+//   .filter(':first-child')
+//   .remove();
+// d3.selectAll('circle')
+//   .filter(':last-child')
+//   .remove();
 
 var icon_width = 40;
 var icon_height = margin.top - 10;
@@ -161,7 +200,7 @@ d3.selectAll('.domain')
 function tabulate(data, columns) {
   var table = d3.select('#chart')
     .append('table')
-    .attr('class','table');
+    .attr('class', 'table');
   var thead = table.append('thead');
   var tbody = table.append('tbody');
 
@@ -169,14 +208,33 @@ function tabulate(data, columns) {
     .selectAll('th')
     .data(columns).enter()
     .append('th')
-    .attr('scope','col')
-    .text(function (column) { return column; })
+    .attr('scope', 'col')
+    .text(function (d, i) { return changeTableHead(d); })
 
+  function changeTableHead(d) {
+    switch (d) {
+      case 'x':
+        return '年紀';
+        break;
+      case 'y':
+        return '錢';
+        break;
+      case 'text':
+        return '階段'
+        break;
+    }
+  }
   var rows = tbody.selectAll('tr')
-    .data(data)
-    .enter()
+    .data(data).enter()
     .append('tr')
-    .attr('class', function (d, i) { return i });
+    .attr('data-hover', function (d, i) { return '.area' + i })
+    .attr('class', function (d, i) { return 'tr tr' + i });
+
+  var colorBlock = rows.append('th')
+    .attr('scope', 'row')
+    .append('div')
+    .attr('class', 'colorBlock')
+    .style('background-color', function (d, i) { return color(i); })
 
   var cells = rows.selectAll('td')
     .data(function (row) {
@@ -186,18 +244,26 @@ function tabulate(data, columns) {
     })
     .enter()
     .append('td')
-    .text(function (d, i) { return d.value; });
+    .text(function (d) { return d.value; });
 
-  return table;
+  d3.selectAll('td')
+    .filter(':nth-child(2)')
+    .remove();
 }
-tabulate(data, ['color', 'x', 'y', 'text'])
+tabulate(data, ['', 'x', 'y', 'text'])
 
 
-// var linePath2 = d3.line()
-//   .x(function(d){return xScale(d.x);})
-//   .y(function(d){return yScale(d.y - 20);})
-//   .curve(d3.curveMonotoneX);
-// g.append("path")
-//   .attr("d",linePath2(data))
-//   .attr("stroke","black")
-//   .attr("fill","none");
+
+$('.tr').hover(function () {
+  var target = $(this).attr('data-hover');
+  d3.select(target)
+    .transition()
+    .attr('fill', 'rgba(150,150,255,1)')
+}, function () {
+  // out
+  var target = $(this).attr('data-hover');
+  d3.select(target)
+    .transition()
+    .attr('fill', 'rgba(150,150,255,0.3)')
+}
+);
