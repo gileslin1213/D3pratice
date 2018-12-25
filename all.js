@@ -69,38 +69,47 @@ var area1 = d3.area()
 
 var defs = svg.append('defs');
 
-defs.selectAll('clipPath')
-  .data(data).enter()
-  .append('clipPath')
-  .attr('id', function (d, i) {
-    console.log(d.x, i);
-    return 'clip-area-' + i;
-  })
+defs.append('clipPath')
+  .attr('id', 'clip-area')
   .append('rect')
   .attr('height', height)
-  .attr('width', function (d, i) { return cilpAreaWidth(d, i); })
-  .attr('x', function (d, i) { return cilpAreaPosition(d, i); })
-  .attr('y', 0);
+  .attr('x', 0)
+  .attr('y', 0)
+  .attr('width', 0);
+// defs.selectAll('clipPath')
+//   .data(data).enter()
+//   .append('clipPath')
+//   .attr('id', function (d, i) {
+//     console.log(d.x, i);
+//     return 'clip-area-' + i;
+//   })
+//   .append('rect')
+//   .attr('height', height)
+//   .attr('width', function (d, i) { return cilpAreaWidth(d, i); })
+//   .attr('x', function (d, i) { return cilpAreaPosition(d, i); })
+//   .attr('y', 0);
 
-function cilpAreaWidth(d, i) {
-  switch (i) {
-    case 0:
-      break;
-    default:
-      return xScale(d.x) - xScale(data[i - 1].x);
-      break;
-  }
-}
+// function cilpAreaWidth(d, i) {
+//   switch (i) {
+//     case 0:
+//       break;
+//     default:
+//       return xScale(d.x) - xScale(data[i - 1].x);
+//       break;
+//   }
+// }
 
-function cilpAreaPosition(d, i) {
-  switch (i) {
-    case 0:
-      break;
-    default:
-      return xScale(data[i - 1].x);
-      break;
-  }
-}
+// function cilpAreaPosition(d, i) {
+//   switch (i) {
+//     case 0:
+//       break;
+//     default:
+//       return xScale(data[i - 1].x);
+//       break;
+//   }
+// }
+
+
 // defs.append('clipPath')
 //   .attr('id', 'clip-retired-area')
 //   .append('rect')
@@ -125,20 +134,31 @@ function cilpAreaPosition(d, i) {
 
 g.append('g')
   .attr('class', 'areas')
-  .selectAll('path')
-  .data(data).enter()
   .append('path')
-  .attr('class', function (d, i) { return 'area' + i; })
+  .attr('class', 'area')
   .attr('d', area1(data))
-  .attr('clip-path', function (d, i) {
-    return 'url(#clip-area-' + i + ')';
-  })
-  .attr('fill', 'rgba(150,150,255,0.3)');
+  .attr('fill', 'rgba(150,150,255,0.3)')
+  .clone()
+  .attr('id', 'area-transition')
+  .attr('fill', 'rgba(150,150,255,1)')
+  .attr('clip-path', 'url(#clip-area)');
+// g.append('g')
+//   .attr('class', 'areas')
+//   .selectAll('path')
+//   .data(data).enter()
+//   .append('path')
+//   .attr('class', function (d, i) { return 'area' + i; })
+//   .attr('d', area1(data))
+//   .attr('clip-path', function (d, i) {
+//     return 'url(#clip-area-' + i + ')';
+//   })
+//   .attr('fill', 'rgba(150,150,255,0.3)');
 
-d3.select('.area0')
-  .remove();
-d3.select('#clip-area-0')
-  .remove();
+// d3.select('.area0')
+//   .remove();
+// d3.select('#clip-area-0')
+//   .remove();
+
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 
 g.append('g')
@@ -227,7 +247,7 @@ function tabulate(data, columns) {
   var rows = tbody.selectAll('tr')
     .data(data).enter()
     .append('tr')
-    .attr('data-hover', function (d, i) { return '.area' + i })
+    .attr('data-hover', function (d, i) { return d.x })
     .attr('class', function (d, i) { return 'tr tr' + i });
 
   var colorBlock = rows.append('th')
@@ -256,14 +276,15 @@ tabulate(data, ['', 'x', 'y', 'text'])
 
 $('.tr').hover(function () {
   var target = $(this).attr('data-hover');
-  d3.select(target)
+  d3.select('#clip-area rect')
     .transition()
-    .attr('fill', 'rgba(150,150,255,1)')
+    .duration(1000)
+    .attr('width', xScale(target))
 }, function () {
   // out
-  var target = $(this).attr('data-hover');
-  d3.select(target)
-    .transition()
-    .attr('fill', 'rgba(150,150,255,0.3)')
+  d3.select('#clip-area rect')
+  .transition()
+  .duration(1000)
+  .attr('width', 0)
 }
 );
