@@ -1,0 +1,46 @@
+#show{
+  font-size: 50px;
+  font-weight: 900;
+}
+.axisX{
+  .tick{
+    font-size: 16px;
+    line{
+      display:none;
+    }
+  }
+}
+.axisY{
+  .tick{
+    color: gray;
+    font-size: 12px;
+    line{
+      stroke: lightgray;
+    }
+  }
+}
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.colorBlock{
+  display:inline-block;
+  width: 30px;
+  height: 30px;
+  background-color:red;
+}
+
+
+
