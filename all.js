@@ -130,6 +130,25 @@ defs.append('clipPath')
 //   }
 // }
 
+//create x axisx
+g.append('g')
+  .attr('class', 'axisX')
+  .attr('transform', 'translate(0, ' + height + ')')
+  .call(axisX);
+
+//create y axisx
+g.append('g')
+  .attr('class', 'axisY')
+  .call(axisY)
+  .selectAll('text')
+  .attr('text-anchor', 'start')
+  .attr('x', '3')
+  .attr('dy', '-5');
+
+//remove border
+d3.selectAll('.domain')
+  .remove();
+
 //create line
 
 // g.append("path")
@@ -172,64 +191,48 @@ g.append('g')
 
 //create points on line
 g.append('g')
-  .attr('class', 'circle')
+  .attr('class', 'points')
   .selectAll('circle')
-  .data(data)
-  .enter()
+  .data(data).enter()
   .append('circle')
   .attr('r', 5)
+  .attr('class', function (d, i) { return 'point point-' + i; })
+  .attr('data-order', function (d, i) { return i })
   .attr('cx', function (d) { return xScale(d.x); })
   .attr('cy', function (d) { return yScale(d.y); })
   .attr('fill', function (d, i) { return color(i); });
 
 // remove first&last point
-
-// d3.selectAll('circle')
-//   .filter(':first-child')
-//   .remove();
-// d3.selectAll('circle')
-//   .filter(':last-child')
-//   .remove();
+d3.selectAll('#chart circle')
+  .filter(':first-child')
+  .remove();
+d3.selectAll('#chart circle')
+  .filter(':last-child')
+  .remove();
 
 //create icon from points
 g.append('g')
-  .attr('class', 'icon')
+  .attr('class', 'icons')
   .selectAll('image')
   .data(data)
   .enter()
   .append('image')
   .attr('width', icon.width)
   .attr('height', icon.height)
+  .attr('class', function (d, i) { return 'icon-' + i })
   .attr('xlink:href', 'https://roboadvisor.asuscomm.com/Financial_Robots/images/QReadyIMG2.png')
   .attr('x', function (d) { return xScale(d.x) - icon.width / 2; })
   .attr('y', function (d) { return yScale(d.y) - icon.height - icon.margin; });
 
 //remove first&last img
-d3.selectAll('image')
+d3.selectAll('#chart image')
   .filter(':first-child')
   .remove();
-d3.selectAll('image')
+d3.selectAll('#chart image')
   .filter(':last-child')
   .remove();
 
-//create x axix
-g.append('g')
-  .attr('class', 'axisX')
-  .attr('transform', 'translate(0, ' + height + ')')
-  .call(axisX);
 
-//create y axix
-g.append('g')
-  .attr('class', 'axisY')
-  .call(axisY)
-  .selectAll('text')
-  .attr('text-anchor', 'start')
-  .attr('x', '3')
-  .attr('dy', '-5');
-
-//remove border
-d3.selectAll('.domain')
-  .remove();
 
 //legend
 function tabulate(data, columns) {
@@ -268,7 +271,7 @@ function tabulate(data, columns) {
   var rows = tbody.selectAll('tr')
     .data(data).enter()
     .append('tr')
-    .attr('data-hover', function (d, i) { return d.x })
+    .attr('data-order', function (d, i) { return i })
     .attr('class', function (d, i) { return 'tr tr' + i });
 
   //create colorblock
@@ -284,8 +287,7 @@ function tabulate(data, columns) {
       return columns.map(function (column) {
         return { column: column, value: row[column] };
       });
-    })
-    .enter()
+    }).enter()
     .append('td')
     .text(function (d, i) { return changeTableFormat(d); });
 
@@ -303,18 +305,121 @@ function tabulate(data, columns) {
 }
 tabulate(data, ['x', 'y', 'text'])
 
-$('.tr').hover(function () {
-  //over
-  var target = $(this).attr('data-hover');
+//tooltip
+var tooltip = d3.select('#chart')
+  .append('div')
+  .attr('class', 'tooltip')
+  .append('p')
+  .attr('class', 'title')
+  .clone()
+  .attr('class', 'yearsOld')
+  .text('0歲')
+  .clone()
+  .attr('class', 'money')
+  .text('0萬');
+
+//effect
+$('#chart .tr').click(function () {
+  //tr active effect
+  if ($('#chart .tr.active').length == 0) {
+    $(this).addClass('active');
+  } else if ($('#chart .tr.active').length !== 0 && $(this).hasClass('active') == false) {
+    $('#chart .tr.active').removeClass('active');
+    $(this).addClass('active');
+  }
+
+  //points active effect
+  var order = $(this).attr('data-order');
+  var point = $('#chart .point[data-order=' + order + ']');
+  var pointMethod = {
+    addActive: function () {
+      point.addClass('active');
+      d3.select('#chart .point.active')
+        .transition()
+        .attr('r', 8)
+        .attr('stroke-width', '5px')
+        .attr('stroke', '#ffc107');
+    },
+    removeActive: function () {
+      d3.select('#chart .point.active')
+        .transition()
+        .attr('r', 5)
+        .attr('stroke-width', '')
+        .attr('stroke', '')
+      $('#chart .point.active').removeClass('active');
+    }
+  };
+  if ($('#chart .point.active').length == 0) {
+    pointMethod.addActive();
+  } else if ($('#chart .point.active').length !== 0 && point.hasClass('active') == false) {
+    pointMethod.removeActive();
+    pointMethod.addActive();
+  }
+
+  var child = {
+    child: $('.axisX .tick:nth-child(' + (JSON.parse(order) + 1) + ') line'),
+    active: $('.axisX .tick line.active')
+  }
+  if (child.active.length == 0) {
+    child.child.addClass('active');
+  } else if (child.active.length !== 0 && child.child.hasClass('active') == false) {
+    child.active.removeClass('active');
+    child.child.addClass('active');
+  }
+
+  //tooltip effect
+  d3.select('.tooltip')
+    .transition()
+    .duration(1000)
+    .style('opacity', '1')
+    .style('left', xScale(data[order].x) + margin.left + 5 + 'px')
+    .style('top', yScale(data[order].y) + margin.top + 5 + 'px');
+
+  d3.select('#chart .title')
+    .transition()
+    .duration(1000)
+    .text(data[order].text);
+  var format = d3.format(",d");
+  d3.select('#chart .yearsOld')
+    .transition()
+    .duration(1000)
+    .tween("text", function () {
+      var content = $('#chart .yearsOld').text();
+      var content = content.substring(0, content.length - 1);
+      var i = d3.interpolateNumber(content, data[order].x);
+      return function (t) {
+        $('#chart .yearsOld').text(format(i(t)) + '歲');
+      };
+    });
+  d3.select('#chart .money')
+    .transition()
+    .duration(1000)
+    .tween("text", function () {
+      var content = $('#chart .money').text();
+      var content = content.substring(0, content.length - 1);
+      var i = d3.interpolateNumber(content, data[order].y);
+      return function (t) {
+        $('#chart .money').text(format(i(t)) + '萬');
+      };
+    });
+
+  //area effect
   d3.select('#clip-area rect')
     .transition()
     .duration(1000)
-    .attr('width', xScale(target))
-}, function () {
-  // out
-  d3.select('#clip-area rect')
-    .transition()
-    .duration(1000)
-    .attr('width', 0)
-}
-);
+    .attr('width', xScale(data[order].x));
+});
+
+$('#chart .point').click(function () {
+  if ($(this).hasClass('active') == false) {
+    var order = $(this).attr('data-order');
+    $('.tr[data-order=' + order + ']').trigger('click');
+  }
+});
+$('#chart .point,.tr').hover(function () {
+  if ($(this).hasClass('active') == false) {
+    var order = $(this).attr('data-order');
+    $('.tr[data-order=' + order + ']').trigger('click');
+  }
+});
+//area double click transition

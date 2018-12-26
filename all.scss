@@ -3,11 +3,22 @@
   font-weight: 900;
 }
 
+
+
+#chart{
+  position: relative;
+}
 .axisX {
   .tick {
     font-size: 16px;
     line {
-      display: none;
+      opacity: 0;
+      stroke: lightgray;
+      stroke-width: 2px;
+      transition: all 1s ;
+      &.active{
+        opacity: 1;
+      }
     }
   }
 }
@@ -52,6 +63,11 @@ th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+.tr{
+  &.active{
+    background-color: lightpink;
+  }
+}
 
 .colorBlock {
   display: inline-block;
@@ -59,4 +75,20 @@ tr:nth-child(even) {
   height: 30px;
   background-color: red;
   vertical-align:middle;
+}
+.point{
+  cursor: pointer;
+}
+.tooltip{
+  width: 10%;
+  background-color: #980000;
+  text-align: center;
+  top: 0;
+  left: 0;
+  border-radius: 10%;
+  p{
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    font-size: 1rem;
+  }
 }
