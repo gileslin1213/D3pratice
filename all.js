@@ -372,8 +372,8 @@ $('#chart .tr').click(function () {
     .transition()
     .duration(1000)
     .style('opacity', '1')
-    .style('left', xScale(data[order].x) + margin.left + 5 + 'px')
-    .style('top', yScale(data[order].y) + margin.top + 5 + 'px');
+    .style('left', xScale(data[order].x) + margin.left - 5 + 'px')
+    .style('top', yScale(data[order].y) + margin.top - 5 + 'px');
 
   d3.select('#chart .title')
     .transition()
