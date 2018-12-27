@@ -3,93 +3,93 @@
   font-weight: 900;
 }
 
-
-
-#chart{
+#chart {
   position: relative;
-}
-.axisX {
-  .tick {
-    font-size: 16px;
-    line {
-      opacity: 0;
-      stroke: lightgray;
-      stroke-width: 2px;
-      transition: all 1s ;
-      &.active{
-        opacity: 1;
+  .axisX {
+    .tick {
+      font-size: 16px;
+      line {
+        opacity: 0;
+        stroke: lightgray;
+        stroke-width: 2px;
+        transition: all 1s;
+        &.active {
+          opacity: 1;
+        }
       }
     }
   }
-}
-
-.axisY {
-  .tick {
-    color: gray;
-    font-size: 12px;
-    line {
-      stroke: lightgray;
-    }
-  }
-}
-
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-  thead{
-    th{
-      &:first-child{
-        width:50px;
+  .axisY {
+    .tick {
+      color: gray;
+      font-size: 12px;
+      line {
+        stroke: lightgray;
       }
     }
   }
-}
-
-.table {
-  th,
-  td {
+  .point {
+    cursor: pointer;
+  }
+  .colorBlock {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    box-shadow: -2px 2px 3px rgba(0,0,0,0.5);
     vertical-align: middle;
   }
-}
-
-td,
-th {
-  border: 1px solid #dddddd;
-  text-align: center;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-.tr{
-  &.active{
-    background-color: lightpink;
+  .tooltip {
+    width: 10%;
+    background-color: #dddddd;
+    text-align: center;
+    top: 0;
+    left: 0;
+    border-radius: 10%;
+    transform: translate(-100%, -100%);
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1), -2px 1px 8px rgba(0, 0, 0, 0.3);
+    padding-top: 0.5rem;
+    p {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
   }
-}
-
-.colorBlock {
-  display: inline-block;
-  width: 30px;
-  height: 30px;
-  background-color: red;
-  vertical-align:middle;
-}
-.point{
-  cursor: pointer;
-}
-.tooltip{
-  width: 10%;
-  background-color: #980000;
-  text-align: center;
-  top: 0;
-  left: 0;
-  border-radius: 10%;
-  transform:translate(-100%,-100%);
-  p{
-    margin-bottom: 0.5rem;
-    color: #ffffff;
-    font-size: 1rem;
+  .table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    .tr{
+      &:hover{
+        transform: translate(3px,-3px);
+        box-shadow: -3px 3px 5px rgba(0,0,0,0.5);
+        transition: all 0.5s;
+      }
+      &:nth-child(even) {
+        background-color: #dddddd;
+      }
+      &:nth-child(odd) {
+        background-color: white;
+      }
+      &.active {
+        background-color: lightpink;
+      }
+    }
+    
+    thead {
+      th {
+        vertical-align: middle;
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #f0ecec;
+        &:first-child {
+          width: 50px;
+        }
+      }
+    }
+    td {
+      padding: 8px;
+      vertical-align: middle;
+      text-align: center;
+      border: 1px solid #dddddd;
+    }
   }
 }

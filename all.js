@@ -9,7 +9,9 @@ var data = [
 var margin = { top: 40, right: 20, bottom: 30, left: 20 };
 var width = $('#chart').width() - margin.right - margin.left;
 var height = $('#chart').width() / 3 - margin.top - margin.bottom;
+var axisYValue = [30,70,130];
 var color = d3.scaleOrdinal(d3.schemeCategory10);
+var point = { r: 5, zoom: 8 };
 var icon = { margin: 5, height: margin.top - 5, width: margin.top - 5 };
 
 // set svg tag
@@ -44,7 +46,7 @@ var axisX = d3.axisBottom(xScale)
 //set y axis
 var axisY = d3.axisLeft(yScale)
   .tickSize(-width, 0)
-  .tickValues([30, 70, 130]);
+  .tickValues(axisYValue);
 
 //let other data don't show
 function getXValue() {
@@ -90,6 +92,24 @@ defs.append('clipPath')
   .attr('x', 0)
   .attr('y', 0)
   .attr('width', 0);
+
+var filter = defs.append('filter')
+  .attr('id', 'shadow')
+  .attr('x',-0.5)
+  .attr('y', -0.5)
+  .attr('width','200%')
+  .attr('height','200%');
+
+filter.append('feGaussianBlur')
+  .attr('result','blurOut')
+  .attr('in','SourceAlpha')
+  .attr('stdDeviation','1');
+
+filter.append('feBlend')
+  .attr('in','SourceGraphic')
+  .attr('in2','blurOut')
+  .attr('mode','normal');
+
 
 // create mask form data
 
@@ -195,7 +215,7 @@ g.append('g')
   .selectAll('circle')
   .data(data).enter()
   .append('circle')
-  .attr('r', 5)
+  .attr('r', point.r)
   .attr('class', function (d, i) { return 'point point-' + i; })
   .attr('data-order', function (d, i) { return i })
   .attr('cx', function (d) { return xScale(d.x); })
@@ -220,7 +240,7 @@ g.append('g')
   .attr('width', icon.width)
   .attr('height', icon.height)
   .attr('class', function (d, i) { return 'icon-' + i })
-  .attr('xlink:href', 'https://roboadvisor.asuscomm.com/Financial_Robots/images/QReadyIMG2.png')
+  .attr('xlink:href', './icons8-bookmark.svg')
   .attr('x', function (d) { return xScale(d.x) - icon.width / 2; })
   .attr('y', function (d) { return yScale(d.y) - icon.height - icon.margin; });
 
@@ -330,20 +350,21 @@ $('#chart .tr').click(function () {
 
   //points active effect
   var order = $(this).attr('data-order');
-  var point = $('#chart .point[data-order=' + order + ']');
+  var pointOrder = $('#chart .point[data-order=' + order + ']');
   var pointMethod = {
     addActive: function () {
-      point.addClass('active');
+      pointOrder.addClass('active');
       d3.select('#chart .point.active')
         .transition()
-        .attr('r', 8)
-        .attr('stroke-width', '5px')
-        .attr('stroke', '#ffc107');
+        .attr('filter','url("#shadow")')
+        .attr('r', point.zoom);
+        
     },
     removeActive: function () {
       d3.select('#chart .point.active')
         .transition()
-        .attr('r', 5)
+        .attr('r', point.r)
+        .attr('filter','')
         .attr('stroke-width', '')
         .attr('stroke', '')
       $('#chart .point.active').removeClass('active');
@@ -351,7 +372,7 @@ $('#chart .tr').click(function () {
   };
   if ($('#chart .point.active').length == 0) {
     pointMethod.addActive();
-  } else if ($('#chart .point.active').length !== 0 && point.hasClass('active') == false) {
+  } else if ($('#chart .point.active').length !== 0 && pointOrder.hasClass('active') == false) {
     pointMethod.removeActive();
     pointMethod.addActive();
   }
@@ -416,10 +437,47 @@ $('#chart .point').click(function () {
     $('.tr[data-order=' + order + ']').trigger('click');
   }
 });
-$('#chart .point,.tr').hover(function () {
-  if ($(this).hasClass('active') == false) {
-    var order = $(this).attr('data-order');
-    $('.tr[data-order=' + order + ']').trigger('click');
-  }
-});
+// $('#chart .point,.tr').hover(function () {
+//   if ($(this).hasClass('active') == false) {
+//     var order = $(this).attr('data-order');
+//     $('.tr[data-order=' + order + ']').trigger('click');
+//   }
+// });
 //area double click transition
+
+
+
+
+jQuery('image.svg').each(function(){
+  var $img = jQuery(this);
+  var imgID = $img.attr('id');
+  var imgClass = $img.attr('class');
+  var imgURL = $img.attr('src');
+
+  jQuery.get(imgURL, function(data) {
+      // Get the SVG tag, ignore the rest
+      var $svg = jQuery(data).find('svg');
+
+      // Add replaced image's ID to the new SVG
+      if(typeof imgID !== 'undefined') {
+          $svg = $svg.attr('id', imgID);
+      }
+      // Add replaced image's classes to the new SVG
+      if(typeof imgClass !== 'undefined') {
+          $svg = $svg.attr('class', imgClass+' replaced-svg');
+      }
+
+      // Remove any invalid XML tags as per http://validator.w3.org
+      $svg = $svg.removeAttr('xmlns:a');
+
+      // Check if the viewport is set, if the viewport is not set the SVG wont't scale.
+      if(!$svg.attr('viewBox') && $svg.attr('height') && $svg.attr('width')) {
+          $svg.attr('viewBox', '0 0 ' + $svg.attr('height') + ' ' + $svg.attr('width'))
+      }
+
+      // Replace image with new SVG
+      $img.replaceWith($svg);
+
+  }, 'xml');
+
+});
