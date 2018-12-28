@@ -67,12 +67,21 @@ function changeXFormat(d) {
   }
 };
 
-//set line
+// set line
 
-// var linePath = d3.line()
-//   .x(function (d) { return xScale(d.x); })
-//   .y(function (d) { return yScale(d.y); })
-//   .curve(d3.curveMonotoneX);
+var linePath = d3.line()
+  .x(function (d) { return xScale(d.x); })
+  .y(function (d,i) { 
+    switch(i){
+      case 0 :
+      case 4 :
+      
+        return yScale(d.y);
+      default:
+      return yScale(d.y - 10); 
+    }
+   })
+  .curve(d3.curveMonotoneX);
 
 //set area
 var area1 = d3.area()
@@ -80,6 +89,7 @@ var area1 = d3.area()
   .y0(height)
   .y1(function (d) { return yScale(d.y); })
   .curve(d3.curveMonotoneX);
+
 
 //set defs
 var defs = svg.append('defs');
@@ -169,13 +179,7 @@ g.append('g')
 d3.selectAll('.domain')
   .remove();
 
-//create line
 
-// g.append("path")
-//   .attr('class','line')
-//   .attr("d",linePath(data))
-//   .attr("stroke","black")
-//   .attr("fill","none");
 
 //create area
 g.append('g')
@@ -188,6 +192,18 @@ g.append('g')
   .attr('id', 'area-transition')
   .attr('fill', 'rgba(150,150,255,1)')
   .attr('clip-path', 'url(#clip-area)');
+
+
+//create line
+
+g.append("path")
+  .attr('class','line')
+  .attr("d",linePath(data))
+  .attr("stroke","black")
+  .attr('stroke-dasharray','5,5')
+  .attr('clip-path', 'url(#clip-area)')
+  .attr("fill","none");
+
 
 //create area form data
 
