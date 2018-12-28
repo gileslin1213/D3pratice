@@ -9,7 +9,7 @@ var data = [
 var margin = { top: 40, right: 20, bottom: 30, left: 20 };
 var width = $('#chart').width() - margin.right - margin.left;
 var height = $('#chart').width() / 3 - margin.top - margin.bottom;
-var axisYValue = [30,70,130];
+var axisYValue = [30, 70, 130];
 var color = d3.scaleOrdinal(d3.schemeCategory10);
 var point = { r: 5, zoom: 8 };
 var icon = { margin: 5, height: margin.top - 5, width: margin.top - 5 };
@@ -105,20 +105,20 @@ defs.append('clipPath')
 
 var filter = defs.append('filter')
   .attr('id', 'shadow')
-  .attr('x',-0.5)
+  .attr('x', -0.5)
   .attr('y', -0.5)
-  .attr('width','200%')
-  .attr('height','200%');
+  .attr('width', '200%')
+  .attr('height', '200%');
 
 filter.append('feGaussianBlur')
-  .attr('result','blurOut')
-  .attr('in','SourceAlpha')
-  .attr('stdDeviation','1');
+  .attr('result', 'blurOut')
+  .attr('in', 'SourceAlpha')
+  .attr('stdDeviation', '1');
 
 filter.append('feBlend')
-  .attr('in','SourceGraphic')
-  .attr('in2','blurOut')
-  .attr('mode','normal');
+  .attr('in', 'SourceGraphic')
+  .attr('in2', 'blurOut')
+  .attr('mode', 'normal');
 
 
 // create mask form data
@@ -255,7 +255,7 @@ g.append('g')
   .append('image')
   .attr('width', icon.width)
   .attr('height', icon.height)
-  .attr('class', function (d, i) { return 'icon-' + i })
+  .attr('class', function (d, i) { return 'svg icon-' + i })
   .attr('xlink:href', './icons8-bookmark.svg')
   .attr('x', function (d) { return xScale(d.x) - icon.width / 2; })
   .attr('y', function (d) { return yScale(d.y) - icon.height - icon.margin; });
@@ -372,15 +372,15 @@ $('#chart .tr').click(function () {
       pointOrder.addClass('active');
       d3.select('#chart .point.active')
         .transition()
-        .attr('filter','url("#shadow")')
+        .attr('filter', 'url("#shadow")')
         .attr('r', point.zoom);
-        
+
     },
     removeActive: function () {
       d3.select('#chart .point.active')
         .transition()
         .attr('r', point.r)
-        .attr('filter','')
+        .attr('filter', '')
         .attr('stroke-width', '')
         .attr('stroke', '')
       $('#chart .point.active').removeClass('active');
@@ -441,10 +441,12 @@ $('#chart .tr').click(function () {
     });
 
   //area effect
-  d3.select('#clip-area rect')
-    .transition()
-    .duration(1000)
-    .attr('width', xScale(data[order].x));
+  
+    d3.select('#clip-area rect')
+      .transition()
+      .duration(1000)
+      .attr('width', xScale(data[order].x));
+
 });
 
 $('#chart .point').click(function () {
@@ -459,16 +461,20 @@ $('#chart .point').click(function () {
 //     $('.tr[data-order=' + order + ']').trigger('click');
 //   }
 // });
+
+// $(function () {
+//   $("tr").after('<tr class="tr-spacer"/>');
+// });
+
 //area double click transition
 
 
 
-
-jQuery('image.svg').each(function(){
+jQuery('img.svg').each(function(){
   var $img = jQuery(this);
   var imgID = $img.attr('id');
   var imgClass = $img.attr('class');
-  var imgURL = $img.attr('src');
+  var imgURL = $img.attr('href');
 
   jQuery.get(imgURL, function(data) {
       // Get the SVG tag, ignore the rest
@@ -485,11 +491,6 @@ jQuery('image.svg').each(function(){
 
       // Remove any invalid XML tags as per http://validator.w3.org
       $svg = $svg.removeAttr('xmlns:a');
-
-      // Check if the viewport is set, if the viewport is not set the SVG wont't scale.
-      if(!$svg.attr('viewBox') && $svg.attr('height') && $svg.attr('width')) {
-          $svg.attr('viewBox', '0 0 ' + $svg.attr('height') + ' ' + $svg.attr('width'))
-      }
 
       // Replace image with new SVG
       $img.replaceWith($svg);

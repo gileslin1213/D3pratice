@@ -57,12 +57,17 @@
     font-family: arial, sans-serif;
     border-collapse: collapse;
     width: 100%;
+    .tr-spacer
+      {
+          height: 20px;
+      }
     .tr{
       &:hover{
-        transform: translate(3px,-3px);
-        box-shadow: -3px 3px 5px rgba(0,0,0,0.5);
+        transform: translate(5px,-3px);
+        box-shadow: -3px 3px 4px rgba(0,0,0,0.3),-4px 4px 5px rgba(0,0,0,0.2);
         transition: all 0.5s;
       }
+      
       &:nth-child(even) {
         background-color: #dddddd;
       }
@@ -78,7 +83,7 @@
       th {
         vertical-align: middle;
         text-align: center;
-        padding: 8px;
+        padding:0 8px;
         border: 1px solid #f0ecec;
         &:first-child {
           width: 50px;
@@ -86,7 +91,7 @@
       }
     }
     td {
-      padding: 8px;
+      padding:0 8px;
       vertical-align: middle;
       text-align: center;
       border: 1px solid #dddddd;
