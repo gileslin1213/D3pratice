@@ -93,7 +93,10 @@ var area1 = d3.area()
 
 //set defs
 var defs = svg.append('defs');
-
+//set icon 
+defs.append('path')
+.attr('d','M 4 5 C 2.895 5 2 5.895 2 7 L 2 23 C 2 24.105 2.895 25 4 25 L 12 25 C 13.105 25 14 25.895 14 27 L 14 7 C 14 5.895 13.105 5 12 5 L 4 5 z M 18 5 C 16.895 5 16 5.895 16 7 L 16 27 C 16 25.895 16.895 25 18 25 L 26 25 C 27.105 25 28 24.105 28 23 L 28 7 C 28 5.895 27.105 5 26 5 L 18 5 z')
+.attr('id','icon_book');
 //create mask
 defs.append('clipPath')
   .attr('id', 'clip-area')
@@ -249,22 +252,22 @@ d3.selectAll('#chart circle')
 //create icon from points
 g.append('g')
   .attr('class', 'icons')
-  .selectAll('image')
-  .data(data)
-  .enter()
-  .append('image')
+  .selectAll('use')
+  .data(data).enter()
+  .append('use')
   .attr('width', icon.width)
   .attr('height', icon.height)
-  .attr('class', function (d, i) { return 'svg icon-' + i })
-  .attr('xlink:href', './icons8-bookmark.svg')
+  .attr('class', 'icon' )
+  .attr('data-order',function (d,i) { return i })
+  .attr('xlink:href', '#icon_book')
   .attr('x', function (d) { return xScale(d.x) - icon.width / 2; })
   .attr('y', function (d) { return yScale(d.y) - icon.height - icon.margin; });
 
 //remove first&last img
-d3.selectAll('#chart image')
+d3.selectAll('#chart use')
   .filter(':first-child')
   .remove();
-d3.selectAll('#chart image')
+d3.selectAll('#chart use')
   .filter(':last-child')
   .remove();
 
@@ -363,7 +366,7 @@ $('#chart .tr').click(function () {
     $('#chart .tr.active').removeClass('active');
     $(this).addClass('active');
   }
-
+  
   //points active effect
   var order = $(this).attr('data-order');
   var pointOrder = $('#chart .point[data-order=' + order + ']');
@@ -404,6 +407,15 @@ $('#chart .tr').click(function () {
     child.child.addClass('active');
   }
 
+//icon effect
+d3.select('.active.icon' )
+.transition()
+.attr('fill','');
+$('.icon.active').removeClass('active');
+$('.icon[data-order=' + order + ']').addClass('active');
+d3.select('.active.icon' )
+.transition()
+.attr('fill',color(order));
   //tooltip effect
   d3.select('.tooltip')
     .transition()
