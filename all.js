@@ -71,16 +71,15 @@ function changeXFormat(d) {
 
 var linePath = d3.line()
   .x(function (d) { return xScale(d.x); })
-  .y(function (d,i) { 
-    switch(i){
-      case 0 :
-      case 4 :
-      
+  .y(function (d, i) {
+    switch (i) {
+      case 0:
+      case 4:
         return yScale(d.y);
       default:
-      return yScale(d.y - 10); 
+        return yScale(d.y - 10);
     }
-   })
+  })
   .curve(d3.curveMonotoneX);
 
 //set area
@@ -95,8 +94,8 @@ var area1 = d3.area()
 var defs = svg.append('defs');
 //set icon 
 defs.append('path')
-.attr('d','M 4 5 C 2.895 5 2 5.895 2 7 L 2 23 C 2 24.105 2.895 25 4 25 L 12 25 C 13.105 25 14 25.895 14 27 L 14 7 C 14 5.895 13.105 5 12 5 L 4 5 z M 18 5 C 16.895 5 16 5.895 16 7 L 16 27 C 16 25.895 16.895 25 18 25 L 26 25 C 27.105 25 28 24.105 28 23 L 28 7 C 28 5.895 27.105 5 26 5 L 18 5 z')
-.attr('id','icon_book');
+  .attr('d', 'M 4 5 C 2.895 5 2 5.895 2 7 L 2 23 C 2 24.105 2.895 25 4 25 L 12 25 C 13.105 25 14 25.895 14 27 L 14 7 C 14 5.895 13.105 5 12 5 L 4 5 z M 18 5 C 16.895 5 16 5.895 16 7 L 16 27 C 16 25.895 16.895 25 18 25 L 26 25 C 27.105 25 28 24.105 28 23 L 28 7 C 28 5.895 27.105 5 26 5 L 18 5 z')
+  .attr('id', 'icon_book');
 //create mask
 defs.append('clipPath')
   .attr('id', 'clip-area')
@@ -185,27 +184,29 @@ d3.selectAll('.domain')
 
 
 //create area
-g.append('g')
+var area = g.append('g')
   .attr('class', 'areas')
   .append('path')
   .attr('class', 'area')
   .attr('d', area1(data))
+  .on("ontouchstart" in document ? "touchmove" : "mousemove", particle)
   .attr('fill', 'rgba(150,150,255,0.3)')
   .clone()
   .attr('id', 'area-transition')
   .attr('fill', 'rgba(150,150,255,1)')
+  .on("ontouchstart" in document ? "touchmove" : "mousemove", particle)
   .attr('clip-path', 'url(#clip-area)');
 
 
 //create line
 
-g.append("path")
-  .attr('class','line')
-  .attr("d",linePath(data))
-  .attr("stroke","black")
-  .attr('stroke-dasharray','5,5')
+var line = g.append("path")
+  .attr('class', 'line')
+  .attr("d", linePath(data))
+  .attr("stroke", "black")
+  .attr('stroke-dasharray', '5,5')
   .attr('clip-path', 'url(#clip-area)')
-  .attr("fill","none");
+  .attr("fill", "none");
 
 
 //create area form data
@@ -229,25 +230,33 @@ g.append("path")
 
 
 //create points on line
+// g.append('g')
+//   .attr('class', 'points')
+//   .selectAll('circle')
+//   .data(data).enter()
+//   .append('circle')
+//   .attr('r', point.r)
+//   .attr('class', function (d, i) { return 'point point-' + i; })
+//   .attr('data-order', function (d, i) { return i })
+//   .attr('cx', function (d) { return xScale(d.x); })
+//   .attr('cy', function (d) { return yScale(d.y); })
+//   .attr('fill', function (d, i) { return color(i); });
 g.append('g')
   .attr('class', 'points')
-  .selectAll('circle')
-  .data(data).enter()
   .append('circle')
   .attr('r', point.r)
-  .attr('class', function (d, i) { return 'point point-' + i; })
-  .attr('data-order', function (d, i) { return i })
-  .attr('cx', function (d) { return xScale(d.x); })
-  .attr('cy', function (d) { return yScale(d.y); })
-  .attr('fill', function (d, i) { return color(i); });
+  .attr('class', 'point')
+  .attr('cx', '0')
+  .attr('cy', '0')
+  .attr('fill', 'red');
 
 // remove first&last point
-d3.selectAll('#chart circle')
-  .filter(':first-child')
-  .remove();
-d3.selectAll('#chart circle')
-  .filter(':last-child')
-  .remove();
+// d3.selectAll('#chart circle')
+//   .filter(':first-child')
+//   .remove();
+// d3.selectAll('#chart circle')
+//   .filter(':last-child')
+//   .remove();
 
 //create icon from points
 g.append('g')
@@ -257,8 +266,8 @@ g.append('g')
   .append('use')
   .attr('width', icon.width)
   .attr('height', icon.height)
-  .attr('class', 'icon' )
-  .attr('data-order',function (d,i) { return i })
+  .attr('class', 'icon')
+  .attr('data-order', function (d, i) { return i })
   .attr('xlink:href', '#icon_book')
   .attr('x', function (d) { return xScale(d.x) - icon.width / 2; })
   .attr('y', function (d) { return yScale(d.y) - icon.height - icon.margin; });
@@ -366,7 +375,7 @@ $('#chart .tr').click(function () {
     $('#chart .tr.active').removeClass('active');
     $(this).addClass('active');
   }
-  
+
   //points active effect
   var order = $(this).attr('data-order');
   var pointOrder = $('#chart .point[data-order=' + order + ']');
@@ -407,15 +416,15 @@ $('#chart .tr').click(function () {
     child.child.addClass('active');
   }
 
-//icon effect
-d3.select('.active.icon' )
-.transition()
-.attr('fill','');
-$('.icon.active').removeClass('active');
-$('.icon[data-order=' + order + ']').addClass('active');
-d3.select('.active.icon' )
-.transition()
-.attr('fill',color(order));
+  //icon effect
+  d3.select('.active.icon')
+    .transition()
+    .attr('fill', '');
+  $('.icon.active').removeClass('active');
+  $('.icon[data-order=' + order + ']').addClass('active');
+  d3.select('.active.icon')
+    .transition()
+    .attr('fill', color(order));
   //tooltip effect
   d3.select('.tooltip')
     .transition()
@@ -453,11 +462,11 @@ d3.select('.active.icon' )
     });
 
   //area effect
-  
-    d3.select('#clip-area rect')
-      .transition()
-      .duration(1000)
-      .attr('width', xScale(data[order].x));
+
+  d3.select('#clip-area rect')
+    .transition()
+    .duration(1000)
+    .attr('width', xScale(data[order].x));
 
 });
 
@@ -481,32 +490,31 @@ $('#chart .point').click(function () {
 //area double click transition
 
 
+function particle() {
+  var xPos = d3.mouse(this)[0];
+  var pathLength =line.node().getTotalLength();
+  var x = xPos;
+  var beginning = x,
+    end = pathLength,
+    target;
+  while (true) {
+    target = Math.floor((beginning + end) / 2);
+    pos = line.node().getPointAtLength(target);
+    if ((target === end || target === beginning) && pos.x !== x) {
+      break;
+    }
+    if (pos.x > x)
+      end = target;
+    else if (pos.x < x)
+      beginning = target;
+    else
+      break; 
+  }
+  
+  d3.select('.point')
+    .attr("cx", x)
+    .attr("cy", pos.y)
+    .style("stroke-opacity", 1);
+  
+};
 
-jQuery('img.svg').each(function(){
-  var $img = jQuery(this);
-  var imgID = $img.attr('id');
-  var imgClass = $img.attr('class');
-  var imgURL = $img.attr('href');
-
-  jQuery.get(imgURL, function(data) {
-      // Get the SVG tag, ignore the rest
-      var $svg = jQuery(data).find('svg');
-
-      // Add replaced image's ID to the new SVG
-      if(typeof imgID !== 'undefined') {
-          $svg = $svg.attr('id', imgID);
-      }
-      // Add replaced image's classes to the new SVG
-      if(typeof imgClass !== 'undefined') {
-          $svg = $svg.attr('class', imgClass+' replaced-svg');
-      }
-
-      // Remove any invalid XML tags as per http://validator.w3.org
-      $svg = $svg.removeAttr('xmlns:a');
-
-      // Replace image with new SVG
-      $img.replaceWith($svg);
-
-  }, 'xml');
-
-});
